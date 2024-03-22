@@ -1,0 +1,119 @@
+# frozen_string_literal: true
+
+# directory settings
+# customize for your project
+output_dir File.expand_path File.join("tmp", "deps_grapher", "graph")
+cache_dir File.expand_path File.join("tmp", "deps_grapher", "cache")
+
+root_dir = "<%= root_dir %>"
+lib_root_dir = File.join(root_dir, "lib")
+layer_root_dir = File.join(lib_root_dir, "deps_grapher")
+
+# default visualizer setting
+visualizer "<%= visualizer %>"
+
+ast_processor_policy do
+  exclude_const /\ADepsGrapher\z/
+
+  # advanced_const_resolver do |ast_node|
+  #   # some advanced logic using ast_node of parser gem
+  #   # this block should return a string of const name or nil
+  #   # if return nil, the const name will be resolved by default logic
+  # end
+end
+
+layer do
+  name :deps_grapher
+  visible true
+
+  source do
+    root lib_root_dir
+    exclude_pattern %r{/(command|cytoscape|vis|visualizer)}
+  end
+
+  color do
+    background "#FF5252"
+    border "#EF5350"
+    font "#FF5252"
+  end
+end
+
+layer do
+  name :command
+  visible true
+
+  source do
+    root File.join(layer_root_dir, "command")
+  end
+
+  color do
+    background "#512DA8"
+    border "#673AB7"
+    font "#512DA8"
+  end
+end
+
+layer do
+  name :cytoscape
+  visible true
+
+  source do
+    root layer_root_dir
+    glob_pattern ["cytoscape.rb", "cytoscape/**/*.rb"]
+  end
+
+  color do
+    background "#448AFF"
+    border "#42A5F5"
+    font "#448AFF"
+  end
+end
+
+layer do
+  name :vis
+  visible true
+
+  source do
+    root layer_root_dir
+    glob_pattern ["vis.rb", "vis/**/*.rb"]
+  end
+
+  color do
+    background "#00B8D4"
+    border "#00ACC1"
+    font "#00B8D4"
+  end
+end
+
+layer do
+  name :visualizer
+  visible true
+
+  source do
+    root layer_root_dir
+    glob_pattern ["visualizer.rb", "visualizer/**/*.rb"]
+  end
+
+  color do
+    background "#00C853"
+    border "#4CAF50"
+    font "#00C853"
+  end
+end
+
+with_plugin do |plugin_dir|
+  layer do
+    name :plugin
+    visible true
+
+    source do
+      root plugin_dir
+    end
+
+    color do
+      background "#607D8B"
+      border "#78909C"
+      font "#607D8B"
+    end
+  end
+end

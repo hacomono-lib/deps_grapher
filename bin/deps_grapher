@@ -1,0 +1,96 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+ENV["BUNDLE_GEMFILE"] ||= File.expand_path(File.join("..", "Gemfile"), __dir__)
+require "bundler/setup"
+require_relative "../lib/deps_grapher"
+
+options = {
+  config: ENV.fetch("DEPS_GRAPHILE", nil),
+  visualizer: nil,
+  visualizer_options: {
+    layers: []
+  }
+}
+
+config = DepsGrapher.config
+context = config.context
+
+if ARGV[0] == "init"
+  command = DepsGrapher::Command::Init.new context
+else
+  opts = OptionParser.new
+  opts.on("-c CONFIG", "--config CONFIG", "specify config path") { |v| options[:config] = File.expand_path v }
+  opts.on("--dump", "dump configuration", TrueClass) { |v| config.dump = v }
+  opts.on("--root ROOT_DIR", "specify a directory path you want to check without configuration") do |v|
+    config.root_dir = File.expand_path v
+    options[:config] = context.generate_temp_graphile
+  end
+  opts.on("-g GRAPH", "--graph GRAPH", "specify graph") { |v| options[:visualizer] = v }
+  opts.on("--layer LAYER", "visible layer name (comma separated is okay)") do |v|
+    options[:visualizer_options][:layers] = v.split(/,+/).to_set do
+      _1.downcase.to_sym
+    end
+  end
+  opts.on("--source CLASS_NAME", "source class on graph, wildcards can be used, also `--target` is required if use this option") { |v| config.source_path = v }
+  opts.on("--target CLASS_NAME", "target class on graph, wildcards can be used") { |v| config.target_path = v }
+  opts.on("--clean", "clear cache", TrueClass) { |v| config.clean = v }
+  opts.on("--ignore-errors", "ignore errors", TrueClass) { |v| config.ignore_errors = v }
+  opts.on("--verbose", "display verbose log", TrueClass) { |v| config.verbose = v }
+
+  begin
+    opts.parse! ARGV
+  rescue OptionParser::InvalidOption, OptionParser::MissingArgument, ArgumentError => e
+    config.logger.warn e.message
+    config.logger.warn ""
+    config.logger.warn opts
+    exit 1
+  end
+
+  config_path = options.delete(:config)
+
+  if config_path.blank?
+    config_path = Dir.glob("graphile.rb").first
+
+    if config_path.blank?
+      config.logger.warn "Run `bundle exec deps_grapher init` to create a configuration file"
+      exit 0
+    end
+    config.logger.info "Detected `#{File.expand_path(config_path)}` and will use it as a configuration file"
+  end
+
+  config.load! config_path
+  config.load_plugin!
+
+  visualizer = options.delete(:visualizer)
+  if visualizer.present?
+    available_visualizers = config.available_visualizers
+
+    if available_visualizers.include?(visualizer)
+      config.visualizer = visualizer
+    else
+      graph_banner = available_visualizers.map do |v|
+        "`#{v}`"
+      end.join(" or ")
+      config.logger.warn "Invalid visualizer: #{visualizer}"
+      config.logger.warn "Available visualizers: #{graph_banner}"
+      exit 1
+    end
+  end
+
+  options[:visualizer_options][:layers] = if options[:visualizer_options][:layers].present?
+                                            if options[:visualizer_options][:layers].include?(:all)
+                                              DepsGrapher::Layer.names
+                                            else
+                                              DepsGrapher::Layer.names & options[:visualizer_options][:layers]
+                                            end
+                                          else
+                                            DepsGrapher::Layer.visible_names
+                                          end
+
+  config.merge! options
+
+  command = DepsGrapher::Command::Analyzer.new config.input.files, context
+end
+
+exit DepsGrapher::Cli.run!(command)

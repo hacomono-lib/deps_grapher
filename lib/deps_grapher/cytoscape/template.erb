@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cytoscape</title>
+    <meta name=”viewport” content=”width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no″>
+    <% required_js.each do |js| -%>
+      <script src="<%= File.basename js %>"></script>
+    <% end -%>
+    <style>
+      #cy {
+        width:  100vw;
+        height: 100vh;
+      }
+    </style>
+    <script>
+      const backgroundColorMap = <%= color_map(:background).to_json %>;
+      document.addEventListener('DOMContentLoaded', function () {
+        const cy = cytoscape({
+          container: document.getElementById('cy'),
+          elements: <%= data.to_json %>,
+          layout: <%= layout_options %>,
+          style: [
+            {
+              selector: 'node',
+              style: {
+                'background-color': function(ele) {
+                  return backgroundColorMap[ele.data('layer')];
+                },
+                'label': 'data(label)',
+                'font-size': '6%',
+                'width': function(ele) {
+                  return Math.max(<%= min_width %>, ele.data('deps_count') * <%= coefficient %>);
+                },
+                'height': function(ele) {
+                  return Math.max(<%= min_height %>, ele.data('deps_count') * <%= coefficient %>);
+                }
+              }
+            },
+            <% Layer.names.each do |layer_name| -%>
+            {
+              selector: 'edge[layer="<%= layer_name %>"]',
+              style: {
+                  'width': 1,
+                  'line-color': '<%= arrow_color(layer_name) %>',
+                  'target-arrow-color': '<%= arrow_color(layer_name) %>',
+                  'target-arrow-shape': 'triangle',
+                  'curve-style': 'bezier'
+              }
+            },
+            <% end -%>
+          ],
+        });
+        <%= advanced_render %>
+      });
+    </script>
+  </head>
+  <body>
+    <div id="cy"></div>
+  </body>
+</html>

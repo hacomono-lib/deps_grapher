@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Network vis <%= shape %></title>
+    <meta name=”viewport” content=”width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no″>
+    <meta charset="utf-8">
+    <style>
+      #network {
+        width:  100vw;
+        height: 100vh;
+      }
+    </style>
+    <% required_js.each do |js| -%>
+    <script src="<%= File.basename js %>"></script>
+    <% end -%>
+  </head>
+  <body>
+    <div id="network"></div>
+    <script>
+      const json = <%= data.to_json %>;
+      const nodes = new vis.DataSet(json['nodes']);
+      const edges = new vis.DataSet(json['edges']);
+      const container = document.getElementById('network');
+      const data = {
+        nodes: nodes,
+        edges: edges
+      };
+      const options = {
+        layout: {
+          improvedLayout: false
+        },
+      };
+      const network = new vis.Network(container, data, options);
+    </script>
+  </body>
+</html>

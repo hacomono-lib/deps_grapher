@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+output_dir File.join(Dir.home, ".deps_grapher", "graph")
+cache_dir File.join(Dir.home, ".deps_grapher", "cache")
+cache_ttl 60 * 5 # 5 minutes
+
+root_dir = "<%= root_dir %>"
+
+layer do
+  name :<%= File.basename(root_dir) %>
+  visible true
+
+  source do
+    root root_dir
+    exclude_pattern %r{/(?:vendor|spec)/}
+  end
+
+  color do
+    background "#448AFF"
+    border "#42A5F5"
+    font "#448AFF"
+  end
+end
