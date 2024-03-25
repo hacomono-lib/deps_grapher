@@ -1,0 +1,14 @@
+#   Refer for explanation to following link:
+#   https://github.com/evilmartians/lefthook/blob/master/docs/configuration.md
+pre-push:
+  commands:
+    test:
+      tags: run rspec
+      run: bundle exec rspec
+
+pre-commit:
+  commands:
+    rubocop:
+      tags: check style
+      glob: "*.rb"
+      run: bundle exec rubocop --force-exclusion {staged_files}
