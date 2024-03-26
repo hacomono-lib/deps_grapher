@@ -12,7 +12,7 @@ RSpec.describe DepsGrapher::AstProcessor do
 
   before do
     value_lib_dir = lib_dir
-    DepsGrapher::Layer.new do
+    layer = DepsGrapher::Layer.new do
       name :test
 
       source do
@@ -25,6 +25,8 @@ RSpec.describe DepsGrapher::AstProcessor do
         font "black"
       end
     end
+
+    DepsGrapher::SourceCache.register! layer.name, layer.source
   end
 
   describe "#call" do

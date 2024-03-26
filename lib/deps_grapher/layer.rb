@@ -36,8 +36,6 @@ module DepsGrapher
       source.files.each do |file|
         Registry.register file, self
       end
-
-      SourceCache.register! name, source
     end
 
     def source(&block)

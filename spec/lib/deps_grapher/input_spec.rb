@@ -6,6 +6,7 @@ RSpec.describe DepsGrapher::Input do
     DepsGrapher::Configuration.new.tap do |c|
       c.merge!(
         clean: clean,
+        cache_key: SecureRandom.hex,
         cache_dir: cache_dir
       )
     end

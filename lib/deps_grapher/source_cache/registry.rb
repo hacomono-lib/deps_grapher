@@ -26,34 +26,29 @@ module DepsGrapher
         end
 
         def with_cache(key)
-          restore_cache! key
-          yield
-          persist_cache! key
+          cache_file = DepsGrapher.cache_file key
+          restore_cache! cache_file
+          yield @cache_restoration
+          persist_cache! cache_file
         end
 
-        def persist_cache!(key)
-          cache_file = DepsGrapher.cache_file key
-          cache_file.write @registry
-        end
+        private
 
-        def restore_cache!(key)
-          cache_file = DepsGrapher.cache_file key
+        def restore_cache!(cache_file)
           loaded = cache_file.read
 
           unless loaded
-            @restored_cache = false
+            @cache_restoration = false
             return
           end
 
           @registry = loaded
-          @restored_cache = true
+          @cache_restoration = true
         end
 
-        def restored_cache?
-          @restored_cache
+        def persist_cache!(cache_file)
+          cache_file.write @registry
         end
-
-        private
 
         def registry
           @registry ||= {}

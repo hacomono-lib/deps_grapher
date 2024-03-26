@@ -76,7 +76,6 @@ RSpec.describe DepsGrapher::Layer do
     context "when all required blocks are given" do
       it "registers the layer and creates a new source cache" do
         expect(DepsGrapher::Layer::Registry).to receive(:register)
-        expect(DepsGrapher::SourceCache).to receive(:register!)
         described_class.new(&create_block(:layer8))
       end
     end

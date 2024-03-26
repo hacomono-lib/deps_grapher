@@ -21,8 +21,6 @@ module DepsGrapher
     end
 
     def register!
-      return if Registry.restored_cache?
-
       class_name_extractor = ClassNameExtractor.new do |class_name, location|
         @cache_by_const_name[class_name] = location
         @cache_by_location[location] ||= class_name
