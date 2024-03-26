@@ -78,7 +78,7 @@ module DepsGrapher
 
       self.cache_key = Digest::MD5.hexdigest content
 
-      DSL.new(self).instance_eval content
+      DSL.new(self).instance_eval content, file
 
       return unless dump
 
