@@ -22,6 +22,7 @@ RSpec.describe DepsGrapher::SourceCache::Registry do
 
   before do
     DepsGrapher.configure do |config|
+      config.cache_key = SecureRandom.hex
       config.cache_dir = cache_dir
     end
     described_class.register cache_by_const_name, cache_by_location
@@ -61,43 +62,47 @@ RSpec.describe DepsGrapher::SourceCache::Registry do
     end
   end
 
-  describe ".persist_cache!" do
-    let(:cache_file) { File.expand_path("source_cache", cache_dir) }
+  describe ".with_cache" do
+    let(:cache_file) { File.join(DepsGrapher.config.cache_dir, DepsGrapher.config.cache_key) }
 
     after do
       FileUtils.rm_f(cache_file)
     end
 
-    it "persists the registry to a file" do
-      expect { described_class.persist_cache!("source_cache") }.not_to raise_error
-      expect(File.exist?(cache_file)).to eq true
-    end
-  end
+    context "when the cache is not restored" do
+      it "yields the block that receives the cache restoration flag" do
+        expect { |b| described_class.with_cache(DepsGrapher.config.cache_key, &b) }.to yield_with_args(false)
+      end
 
-  describe ".restore_cache!" do
-    let(:cache_file) { File.expand_path("source_cache", cache_dir) }
-
-    after do
-      FileUtils.rm_f(cache_file)
-    end
-
-    context "when the file does not exist" do
-      it "returns false" do
-        described_class.restore_cache!("source_cache")
-        expect(described_class.restored_cache?).to eq false
+      it "persists the cache" do
+        expect(File.exist?(cache_file)).to eq false
+        expect do
+          described_class.with_cache(DepsGrapher.config.cache_key) do
+            described_class.register cache_by_const_name, cache_by_location
+          end
+        end.not_to raise_error
+        expect(File.exist?(cache_file)).to eq true
       end
     end
 
-    context "when the file exists" do
+    context "when the cache is restored" do
       before do
-        described_class.persist_cache!("source_cache")
+        described_class.send(:persist_cache!, DepsGrapher.cache_file(DepsGrapher.config.cache_key))
       end
 
-      it "restores the registry from a file" do
-        described_class.restore_cache!("source_cache")
-        expect(described_class.restored_cache?).to eq true
-        expect(described_class.fetch("DepsGrapher::SourceCache")).to eq File.join(root, "source_cache.rb")
-        expect(described_class.fetch(File.join(root, "source_cache.rb"))).to eq "DepsGrapher::SourceCache"
+      it "yields the block that receives the cache restoration flag" do
+        expect { |b| described_class.with_cache(DepsGrapher.config.cache_key, &b) }.to yield_with_args(true)
+      end
+
+      it "does not persist the cache" do
+        expect(File.exist?(cache_file)).to eq true
+        mtime = File.mtime(cache_file)
+        expect do
+          described_class.with_cache(DepsGrapher.config.cache_key) do
+            described_class.register cache_by_const_name, cache_by_location
+          end
+        end.not_to raise_error
+        expect(File.mtime(cache_file)).to eq mtime
       end
     end
   end

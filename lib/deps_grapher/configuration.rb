@@ -12,6 +12,7 @@ module DepsGrapher
     class_attribute :target_path # target class name on graph
     class_attribute :clean, default: false
     class_attribute :logger
+    class_attribute :cache_key
     class_attribute :cache_dir, default: File.expand_path(File.join("..", "..", "tmp", "deps_grapher", "cache"), __dir__)
     class_attribute :cache_ttl, default: 60 * 5 # 5 minutes
     class_attribute :output_dir, default: File.expand_path(File.join("..", "..", "tmp", "deps_grapher", "graph"), __dir__)
@@ -75,11 +76,9 @@ module DepsGrapher
 
       content = File.read file
 
-      cache_key = Digest::MD5.hexdigest(content)
+      self.cache_key = Digest::MD5.hexdigest content
 
-      SourceCache::Registry.with_cache cache_key do
-        DSL.new(self).instance_eval content
-      end
+      DSL.new(self).instance_eval content, file
 
       return unless dump
 

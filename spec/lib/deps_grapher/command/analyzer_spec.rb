@@ -29,7 +29,7 @@ RSpec.describe DepsGrapher::Command::Analyzer do
       let(:target_path) { nil }
 
       before do
-        DepsGrapher::Layer.new do
+        layer = DepsGrapher::Layer.new do
           name :test
           source do
             root File.expand_path(File.join("..", "..", "..", "..", "lib", "deps_grapher", "command"), __dir__)
@@ -41,6 +41,8 @@ RSpec.describe DepsGrapher::Command::Analyzer do
             font "black"
           end
         end
+
+        DepsGrapher::SourceCache.register! layer.name, layer.source
 
         allow(visualizer).to receive(:accept!)
         allow(visualizer).to receive(:render).and_return("html string")
