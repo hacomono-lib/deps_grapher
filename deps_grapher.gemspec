@@ -31,4 +31,5 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activesupport"
   spec.add_dependency "parser"
+  spec.add_dependency "prism"
 end

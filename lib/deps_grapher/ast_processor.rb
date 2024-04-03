@@ -40,7 +40,7 @@ module DepsGrapher
 
       log do
         source_buffer = Parser::Source::Buffer.new(@file_path)
-        parser = Parser::CurrentRuby.new
+        parser = Prism::Translation::Parser.new
         process parser.parse(source_buffer.read)
       end
     end

@@ -5,7 +5,7 @@ A Tool to visualize Ruby class dependencies
 
 ## Description
 
-Deps Grapher is intended for a general understanding of class dependencies through static analysis. It uses `parser` gem.
+Deps Grapher is intended for a general understanding of class dependencies through static analysis. It uses `prism` gem.
 
 Please note the following:
 
