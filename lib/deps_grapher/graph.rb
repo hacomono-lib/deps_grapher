@@ -38,14 +38,14 @@ module DepsGrapher
     private
 
     def dfs(current, target_path_matcher, visited, path, paths)
-      return if visited[current]
-
       visited[current] = true
 
       if target_path_matcher.match?(current.class_name)
         paths << path
       else
         @graph[current]&.each do |node|
+          next if visited[node]
+
           dfs node, target_path_matcher, visited, path + [node], paths
         end
       end
