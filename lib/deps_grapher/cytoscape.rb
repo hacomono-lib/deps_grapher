@@ -54,13 +54,17 @@ module DepsGrapher
     end
 
     def convert_node(node)
+      random_color = Color.random
       {
         group: :nodes,
         data: {
           id: node.id,
           layer: node.layer,
           label: node.label,
-          deps_count: node.deps_count
+          deps_count: node.deps_count,
+          background: random_color.background,
+          border: random_color.border,
+          font: random_color.font
         }
       }
     end
