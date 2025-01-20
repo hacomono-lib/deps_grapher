@@ -24,7 +24,6 @@ module DepsGrapher
 
         if block_given?
           DSL.new(self).instance_eval(&block)
-          generate_random_colors! if @background.nil? || @border.nil?
           assert!
           Registry.register layer_name, self
         else
@@ -58,8 +57,8 @@ module DepsGrapher
 
       def generate_random_colors!
         require "securerandom"
-        @background ||= "##{SecureRandom.hex(3)}"
-        @border ||= "##{SecureRandom.hex(3)}"
+        @background = @background.presence || "##{SecureRandom.hex(3)}"
+        @border = @border.presence || "##{SecureRandom.hex(3)}"
       end
 
       def assert!
