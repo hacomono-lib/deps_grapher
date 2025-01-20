@@ -20,10 +20,11 @@ module DepsGrapher
 
       def initialize(layer_name, &block)
         @layer_name = layer_name
-        @font ||= "#fff"
+        @font = "#ffffff"
 
         if block_given?
           DSL.new(self).instance_eval(&block)
+          generate_random_colors! if @background.nil? || @border.nil?
         else
           generate_random_colors!
         end
@@ -44,16 +45,7 @@ module DepsGrapher
         Registry.register layer_name, self unless layer_name.start_with?("random_")
       end
 
-      private
-
-      def generate_random_colors!
-        require "securerandom"
-        @background = "##{SecureRandom.hex(3)}"
-        @border = "##{SecureRandom.hex(3)}"
-        @font = "#ffffff" # Keep font white for readability
-      end
-
-      def highlight(background:, border:, font: "#fff")
+      def highlight(background:, border:, font: "#ffffff")
         @settings[:highlight] = {
           background: background,
           border: border,
@@ -64,6 +56,12 @@ module DepsGrapher
       end
 
       private
+
+      def generate_random_colors!
+        require "securerandom"
+        @background ||= "##{SecureRandom.hex(3)}"
+        @border ||= "##{SecureRandom.hex(3)}"
+      end
 
       def assert!
         raise ArgumentError, "color: no `background` given" if background.blank?
