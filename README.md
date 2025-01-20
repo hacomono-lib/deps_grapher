@@ -15,6 +15,14 @@ Please note the following:
 
 Therefore, it may not be accurate and should be used as a reference only.
 
+### Node Display
+
+Each node in the graph represents a Ruby class and displays:
+- Class name
+- Number of dependencies (if any)
+- File location
+- Random colors for better visual distinction between nodes
+
 ## Installation
 
 Please add this line to your application's Gemfile:

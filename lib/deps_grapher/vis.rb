@@ -36,6 +36,7 @@ module DepsGrapher
 
     def convert_node(node)
       root_node = node.parent.nil?
+      random_color = Color.random
 
       {
         id: node.id,
@@ -44,9 +45,12 @@ module DepsGrapher
         size: (root_node ? 10 : 5) + [1.5 * node.deps_count, 20].min,
         font: {
           size: (root_node ? 8 : 5) + [1.2 * node.deps_count, 5].min,
-          color: font_color(node.layer)
+          color: random_color.font
         },
-        color: color_settings(node.layer).except(:font)
+        color: {
+          background: random_color.background,
+          border: random_color.border
+        }
       }
     end
 

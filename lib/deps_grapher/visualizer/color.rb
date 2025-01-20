@@ -7,19 +7,27 @@ module DepsGrapher
     class Color
       class << self
         def fetch(layer_name)
-          Registry.fetch layer_name
+          Registry.fetch(layer_name) || new(layer_name)
         end
         alias [] fetch
 
         def generate_map(type)
           Registry.all.to_h { |color| [color.layer_name, color.send(type)] }
         end
+
+        def random
+          new(SecureRandom.hex(4))
+        end
       end
 
       attr_accessor :layer_name, :background, :border, :font, :arrow, :settings
 
       def initialize(layer_name, &block)
-        DSL.new(self).instance_eval(&block)
+        if block_given?
+          DSL.new(self).instance_eval(&block)
+        else
+          generate_random_colors!
+        end
 
         @layer_name = layer_name
         @font ||= "#fff"
@@ -38,6 +46,13 @@ module DepsGrapher
         }
 
         Registry.register layer_name, self
+      end
+
+      def generate_random_colors!
+        require "securerandom"
+        @background = "##{SecureRandom.hex(3)}"
+        @border = "##{SecureRandom.hex(3)}"
+        @font = "#ffffff" # Keep font white for readability
       end
 
       def highlight(background:, border:, font: "#fff")

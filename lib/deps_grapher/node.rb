@@ -42,7 +42,11 @@ module DepsGrapher
     end
 
     def label
-      deps_count.positive? ? "#{class_name} (#{deps_count})" : class_name
+      parts = []
+      parts << class_name
+      parts << "(#{deps_count})" if deps_count.positive?
+      parts << "[#{location}]"
+      parts.join(" ")
     end
 
     def layer
