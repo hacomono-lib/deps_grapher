@@ -60,7 +60,10 @@ module DepsGrapher
           id: node.id,
           layer: node.layer,
           label: node.label,
-          deps_count: node.deps_count
+          deps_count: node.deps_count,
+          background: background_color(node.layer),
+          border: color(node.layer).border,
+          font: font_color(node.layer)
         }
       }
     end

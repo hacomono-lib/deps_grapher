@@ -57,6 +57,45 @@ RSpec.describe DepsGrapher::Visualizer::Color do
       end
     end
 
+    context "when no color block is given" do
+      it "generates random colors" do
+        color = described_class.new(layer_name)
+
+        expect(color.background).to match(/\A#[0-9a-f]{6}\z/i)
+        expect(color.border).to match(/\A#[0-9a-f]{6}\z/i)
+        expect(color.font).to eq "#ffffff"
+      end
+
+      it "does not register random colors" do
+        described_class.new(layer_name)
+
+        expect { described_class.fetch(layer_name) }.to raise_error(KeyError)
+      end
+    end
+
+    context "when partial color attributes are given" do
+      it "uses provided colors and generates random ones for missing attributes" do
+        color = described_class.new(layer_name) do
+          background "#custom"
+        end
+
+        expect(color.background).to eq "#custom"
+        expect(color.border).to match(/\A#[0-9a-f]{6}\z/i)
+        expect(color.font).to eq "#ffffff"
+      end
+
+      it "properly handles DSL with missing attributes" do
+        color = described_class.new(layer_name) do
+          background "#custom"
+          border "#fixed"
+        end
+
+        expect(color.background).to eq "#custom"
+        expect(color.border).to eq "#fixed"
+        expect(color.font).to eq "#ffffff"
+      end
+    end
+
     context "when any of the attributes other than `font` are not given" do
       it "raises an ArgumentError" do
         expect do

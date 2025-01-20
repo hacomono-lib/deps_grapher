@@ -44,7 +44,7 @@ module DepsGrapher
     end
 
     def color(&block)
-      @color_defined = true if block
+      @color_defined = true
       Visualizer::Color.new(name, &block)
     end
 
