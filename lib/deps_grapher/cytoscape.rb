@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "visualizer/base"
+require_relative "visualizer/color"
 
 module DepsGrapher
   class Cytoscape < Visualizer::Base
@@ -54,7 +55,7 @@ module DepsGrapher
     end
 
     def convert_node(node)
-      random_color = Color.random
+      random_color = DepsGrapher::Visualizer::Color.random
       {
         group: :nodes,
         data: {

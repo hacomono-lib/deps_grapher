@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "visualizer/base"
+require_relative "visualizer/color"
 
 module DepsGrapher
   class Vis < Visualizer::Base
@@ -36,7 +37,7 @@ module DepsGrapher
 
     def convert_node(node)
       root_node = node.parent.nil?
-      random_color = Color.random
+      random_color = DepsGrapher::Visualizer::Color.random
 
       {
         id: node.id,
