@@ -24,8 +24,7 @@ module DepsGrapher
 
         if block_given?
           DSL.new(self).instance_eval(&block)
-          generate_random_colors! if @background.nil? || @border.nil?
-          assert!
+          assert!  # Validate required attributes are set in the block
           Registry.register layer_name, self
         else
           generate_random_colors!
@@ -64,9 +63,13 @@ module DepsGrapher
       end
 
       def assert!
-        raise ArgumentError, "color: no `background` given" if background.blank?
-        raise ArgumentError, "color: no `border` given" if border.blank?
-        raise ArgumentError, "color: no `font` given" if font.blank?
+        if @background.blank? && @border.blank?
+          generate_random_colors!
+        else
+          raise ArgumentError, "color: no `background` given" if @background.blank?
+          raise ArgumentError, "color: no `border` given" if @border.blank?
+        end
+        raise ArgumentError, "color: no `font` given" if @font.blank?
       end
     end
   end
