@@ -21,14 +21,15 @@ module DepsGrapher
       def initialize(layer_name, &block)
         @layer_name = layer_name
         @font = "#ffffff"
+        @has_block = block_given?
 
-        if block_given?
+        if @has_block
           DSL.new(self).instance_eval(&block)
-          assert!(&block)  # Pass the block to assert! to indicate block mode
+          assert!
           Registry.register layer_name, self
         else
           @layer_name = "random_#{layer_name}"
-          assert!  # Non-block mode
+          assert!
         end
 
         @settings = {
@@ -62,7 +63,7 @@ module DepsGrapher
       end
 
       def assert!
-        if block_given?
+        if @has_block
           # In block mode, generate random colors for missing attributes
           @background = "##{SecureRandom.hex(3)}" if @background.blank?
           @border = "##{SecureRandom.hex(3)}" if @border.blank?
