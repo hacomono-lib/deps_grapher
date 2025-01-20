@@ -31,9 +31,7 @@ module DepsGrapher
         @layer_name = layer_name
         @font ||= "#fff"
 
-        if block_given?
-          DSL.new(self).instance_eval(&block)
-        end
+        DSL.new(self).instance_eval(&block) if block_given?
 
         assert!
 
