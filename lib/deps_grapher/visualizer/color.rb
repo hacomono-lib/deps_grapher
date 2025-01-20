@@ -24,12 +24,10 @@ module DepsGrapher
 
         if block_given?
           DSL.new(self).instance_eval(&block)
-          generate_random_colors! if @background.nil? || @border.nil?
-        else
-          generate_random_colors!
+          assert!
         end
 
-        assert!
+        generate_random_colors! if @background.nil? || @border.nil?
 
         @settings = {
           background: background,
@@ -42,7 +40,7 @@ module DepsGrapher
           }
         }
 
-        Registry.register layer_name, self unless layer_name.start_with?("random_")
+        Registry.register layer_name, self if block_given?
       end
 
       def highlight(background:, border:, font: "#ffffff")
