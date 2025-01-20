@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "color/registry"
+require "securerandom"
 
 module DepsGrapher
   module Visualizer
@@ -16,21 +17,23 @@ module DepsGrapher
         end
 
         def random
-          new(SecureRandom.hex(4))
+          new("random_#{SecureRandom.hex(4)}") do |c|
+            c.background "##{SecureRandom.hex(3)}"
+            c.border "##{SecureRandom.hex(3)}"
+            c.font "#ffffff"
+          end
         end
       end
 
       attr_accessor :layer_name, :background, :border, :font, :arrow, :settings
 
       def initialize(layer_name, &block)
-        if block_given?
-          DSL.new(self).instance_eval(&block)
-        else
-          generate_random_colors!
-        end
-
         @layer_name = layer_name
         @font ||= "#fff"
+
+        if block_given?
+          DSL.new(self).instance_eval(&block)
+        end
 
         assert!
 
@@ -45,7 +48,7 @@ module DepsGrapher
           }
         }
 
-        Registry.register layer_name, self
+        Registry.register layer_name, self unless layer_name.start_with?("random_")
       end
 
       def highlight(background:, border:, font: "#fff")
