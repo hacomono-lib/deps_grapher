@@ -24,7 +24,11 @@ module DepsGrapher
 
         if block_given?
           DSL.new(self).instance_eval(&block)
-          validate_block_attributes!
+          if @background.blank? && @border.blank?
+            validate_block_attributes!  # Strict validation when no colors provided
+          else
+            generate_random_colors!     # Fill in missing colors when some are provided
+          end
           Registry.register layer_name, self
         else
           @layer_name = "random_#{layer_name}"
@@ -57,11 +61,8 @@ module DepsGrapher
 
       def generate_random_colors!
         require "securerandom"
-        # Only generate random colors in non-block mode
-        unless block_given?
-          @background = "##{SecureRandom.hex(3)}"
-          @border = "##{SecureRandom.hex(3)}"
-        end
+        @background = @background.presence || "##{SecureRandom.hex(3)}"
+        @border = @border.presence || "##{SecureRandom.hex(3)}"
       end
 
       def validate_block_attributes!
