@@ -41,11 +41,11 @@ module DepsGrapher
       @deps_count = 0
     end
 
-    def label
+    def label(show_location: false)
       parts = []
       parts << class_name
       parts << "(#{deps_count})" if deps_count.positive?
-      parts << "[#{location}]"
+      parts << "[#{location}]" if show_location
       parts.join(" ")
     end
 
