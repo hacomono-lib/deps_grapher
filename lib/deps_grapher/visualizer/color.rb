@@ -21,11 +21,10 @@ module DepsGrapher
       def initialize(layer_name, &block)
         @layer_name = layer_name
         @font = "#ffffff"
-        @has_block = block_given?
 
-        if @has_block
+        if block_given?
           DSL.new(self).instance_eval(&block)
-          validate_attributes!
+          validate_block_attributes!
           Registry.register layer_name, self
         else
           @layer_name = "random_#{layer_name}"
@@ -58,12 +57,15 @@ module DepsGrapher
 
       def generate_random_colors!
         require "securerandom"
-        @background = @background.presence || "##{SecureRandom.hex(3)}"
-        @border = @border.presence || "##{SecureRandom.hex(3)}"
+        # Only generate random colors in non-block mode
+        unless block_given?
+          @background = "##{SecureRandom.hex(3)}"
+          @border = "##{SecureRandom.hex(3)}"
+        end
       end
 
-      def validate_attributes!
-        # In block mode, validate that all required attributes are provided
+      def validate_block_attributes!
+        # In block mode, strictly validate that all required attributes are provided
         raise ArgumentError, "color: no `background` given" if @background.blank?
         raise ArgumentError, "color: no `border` given" if @border.blank?
         raise ArgumentError, "color: no `font` given" if @font.blank?
