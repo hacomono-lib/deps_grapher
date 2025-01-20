@@ -24,11 +24,13 @@ module DepsGrapher
 
         if block_given?
           DSL.new(self).instance_eval(&block)
+          generate_random_colors! if @background.nil? || @border.nil?
           assert!
           Registry.register layer_name, self
         else
           generate_random_colors!
           @layer_name = "random_#{layer_name}"
+          assert!
         end
 
         @settings = {
