@@ -1,0 +1,8 @@
+name: 'Takumi Guard setup'
+description: 'Configure package registries to route through Takumi Guard'
+runs:
+  using: 'composite'
+  steps:
+    - uses: flatt-security/setup-takumi-guard-rubygems@ce18aae2e17e26d6510008ada35a08fff356179a # v1
+      with:
+        bot-id: "BT01KRJ741G9T8KN3Y91SHA5KF1F"
